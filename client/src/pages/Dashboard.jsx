@@ -237,17 +237,17 @@ function Dashboard() {
       taskDueDate.setHours(0, 0, 0, 0);
     }
 
-    if (filter === "Pending") {
-      return task.status !== "Completed";
+    if (filter === "pending") {
+      return task.status.toLowerCase() !== "completed";
     }
-
-    if (filter === "Completed") {
-      return task.status === "Completed";
+    
+    if (filter === "completed") {
+      return task.status.toLowerCase() === "completed";
     }
-
-    if (filter === "Overdue") {
+    
+    if (filter === "overdue") {
       return (
-        task.status !== "Completed" &&
+        task.status.toLowerCase() !== "completed" &&
         taskDueDate &&
         taskDueDate < today
       );
@@ -379,53 +379,38 @@ function Dashboard() {
         }
 
         >
-          <input
-            type="text"
-            placeholder="Search Tasks..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="form-control mb-0 border-2"
-          />
-
-
-          <div className="row mb-2">
-
-            <div className="col-md-3 p-2 text-center">
-              <div className="card text-bg-primary text-white shadow border-0">
-                <div className="card-body">
-                  <h5 classname="mb-1">Total Tasks</h5>
-                  <h5 classname="mb-0">{totalTasks}</h5>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3 p-2">
-              <div className="card text-bg-warning text-white shadow border-0">
-                <div className="card-body">
-                  <h5 classname="mb-1">Pending</h5>
-                  <h5 classname="mb-0">{pendingTasks}</h5>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3 p-2">
-              <div className="card text-bg-success text-white shadow border-0">
-                <div className="card-body">
-                  <h5 classname="mb-1">Completed</h5>
-                  <h5 classname="mb-0">{completedTasks}</h5>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3 p-2">
-              <div className="card text-bg-danger text-white shadow border-0">
-                <div className="card-body">
-                  <h5 classname="mb-1">Overdue</h5>
-                  <h5 classname="mb-0">{overdueTasks}</h5>
-                </div>
-              </div>
-            </div>
-
+          <div className="d-flex gap-2 mb-3">
+            <input
+              type="text"
+              placeholder="Search Tasks..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="form-control border-2"
+            />
+          
+            <select
+              className="form-select border-2"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              style={{ maxWidth: "170px" }}
+            >
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+            </select>
+          
+            <select
+              className="form-select border-2"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ maxWidth: "190px" }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="dueDate">Due Date</option>
+              <option value="priority">Priority</option>
+            </select>
           </div>
 
           {dueTodayCount > 0 ? (
@@ -438,92 +423,12 @@ function Dashboard() {
             </div>
           )}
 
-          <div className="row">
-            <div className="col-md-6">
-              <TaskChart data={chartData} />
-            </div>
-
-            <div className="col-md-6">
-              <PriorityChart data={priorityData} />
-            </div>
-          </div>
-
-          <div className="card p-2 shadow-sm mb-3">
-            <h5 className="mb-1">
-              Task Completion Rate
-            </h5>
-
-            <div className="progress " style={{ height: "15px" }}>
-              <div
-                className="progress-bar bg-success"
-                role="progressbar"
-                style={{
-                  width: `${completionPercentage}%`,
-                }}
-              >
-                {completionPercentage}%
-              </div>
-            </div>
-
-            <p className="mt-1 mb-0">
-              {completedTasks} of {totalTasks} tasks completed
-            </p>
-          </div>
-
           <hr />
-
-
-
-
-
 
           <h2>My Tasks</h2>
 
-
-          <p>Total Tasks: {tasks.length}</p>
-          <p>Filtered Tasks: {filteredTasks.length}</p>
-
-
-          <div className="mb-3">
-            <button
-              className="btn btn-secondary me-2"
-              onClick={() => setFilter("All")}
-            >
-              All
-            </button>
-
-            <button
-              className="btn btn-warning me-2"
-              onClick={() => setFilter("Pending")}
-            >
-              Pending
-            </button>
-
-            <button
-              className="btn btn-success me-2"
-              onClick={() => setFilter("Completed")}
-            >
-              Completed
-            </button>
-
-            <button
-              className="btn btn-danger"
-              onClick={() => setFilter("Overdue")}
-            >
-              Overdue
-            </button>
-          </div>
-
-          <select
-            className="form-select mb-3 border-2"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="dueDate">Due Date</option>
-            <option value="priority">Priority</option>
-          </select>
+          <p className="d-flex justify-content-center align-items-center flex-wrap gap-5"><span>Total Tasks: {tasks.length}</span>
+            <span>Filtered Tasks: {filteredTasks.length}</span></p>
 
           {filteredTasks.length === 0 ? (
             <p>No Tasks Found</p>
@@ -579,10 +484,10 @@ function Dashboard() {
                       Status:{" "}
                       <span
                         className={`badge ${task.status === "Completed"
-                            ? "bg-success"
-                            : task.status === "In Progress"
-                              ? "bg-primary"
-                              : "bg-secondary"
+                          ? "bg-success"
+                          : task.status === "In Progress"
+                            ? "bg-primary"
+                            : "bg-secondary"
                           }`}
                       >
                         {task.status}
@@ -593,10 +498,10 @@ function Dashboard() {
                       Priority:{" "}
                       <span
                         className={`badge ${task.priority === "High"
-                            ? "bg-danger"
-                            : task.priority === "Medium"
-                              ? "bg-warning text-dark"
-                              : "bg-success"
+                          ? "bg-danger"
+                          : task.priority === "Medium"
+                            ? "bg-warning text-dark"
+                            : "bg-success"
                           }`}
                       >
                         {task.priority}
@@ -672,7 +577,7 @@ function Dashboard() {
             <div className="card-body">
 
               <h2 className="text-center mb-4">
-                Add Task
+                Add New Task
               </h2>
 
               <form onSubmit={handleAddTask}>
@@ -718,6 +623,78 @@ function Dashboard() {
                 </button>
               </form>
             </div>
+          </div>
+
+          <div className="row mb-2">
+
+            <div className="col-md-3 p-2 text-center">
+              <div className="card text-bg-primary text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Total Tasks</h5>
+                  <h5 classname="mb-0">{totalTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-warning text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Pending</h5>
+                  <h5 classname="mb-0">{pendingTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-success text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Completed</h5>
+                  <h5 classname="mb-0">{completedTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-danger text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Overdue</h5>
+                  <h5 classname="mb-0">{overdueTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div className="row">
+            <div className="col-md-6">
+              <TaskChart data={chartData} />
+            </div>
+
+            <div className="col-md-6">
+              <PriorityChart data={priorityData} />
+            </div>
+          </div>
+
+          <div className="card p-2 shadow-sm ">
+            <h5 className="mb-1">
+              Task Completion Rate
+            </h5>
+
+            <div className="progress " style={{ height: "15px" }}>
+              <div
+                className="progress-bar bg-success"
+                role="progressbar"
+                style={{
+                  width: `${completionPercentage}%`,
+                }}
+              >
+                {completionPercentage}%
+              </div>
+            </div>
+
+            <p className="mt-1 mb-0">
+              {completedTasks} of {totalTasks} tasks completed
+            </p>
           </div>
 
 
