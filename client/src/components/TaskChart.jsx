@@ -14,10 +14,10 @@ import {
 
 function TaskChart({ data }) {
     return (
-        <div className="card p-3 shadow-sm mb-4">
+        <div className="card p-2 shadow-sm mb-2 ">
             <h4 className="mb-3">Task Overview</h4>
 
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />
 

@@ -379,125 +379,106 @@ function Dashboard() {
         }
 
         >
-
-          <div className={`card shadow-sm mb-4 ${darkMode ? "bg-secondary text-light" : ""
-            }`}
-          >
-
-            <div className="card-body">
-
-              <h2 className="text-center mb-4">
-                Add Task
-              </h2>
-
-              <form onSubmit={handleAddTask}>
-                <input
-                  type="text"
-                  placeholder="Enter task title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="form-control"
-                />
-
-                <input
-                  type="text"
-                  placeholder="Enter description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="form-control"
-                />
-
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="form-select"
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
-
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="form-control"
-                />
-
-                <button
-                  type="submit"
-                  className={`btn ${isEditing ? "btn-warning" : "btn-primary"
-                    }`}
-                >
-                  {isEditing ? "Update Task" : "Add Task"}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <hr />
-
-          <div className="row mb-4">
-
-            <div className="col-md-3">
-              <div className="card text-bg-primary text-white shadow border-0">
-                <div className="card-body">
-                  <h5>Total Tasks</h5>
-                  <h3>{totalTasks}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3">
-              <div className="card text-bg-warning text-white shadow border-0">
-                <div className="card-body">
-                  <h5>Pending</h5>
-                  <h3>{pendingTasks}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3">
-              <div className="card text-bg-success text-white shadow border-0">
-                <div className="card-body">
-                  <h5>Completed</h5>
-                  <h3>{completedTasks}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-md-3">
-              <div className="card text-bg-danger text-white shadow border-0">
-                <div className="card-body">
-                  <h5>Overdue</h5>
-                  <h3>{overdueTasks}</h3>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-
-
-          {dueTodayCount > 0 ? (
-            <div className="alert alert-warning">
-              ⚠ {dueTodayCount} task(s) are due today
-            </div>
-          ) : (
-            <div className="alert alert-success">
-              🎉 No tasks due today
-            </div>
-          )}
-
-          <h2>My Tasks</h2>
-
           <input
             type="text"
             placeholder="Search Tasks..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="form-control mb-3"
+            className="form-control mb-0 border-2"
           />
+
+
+          <div className="row mb-2">
+
+            <div className="col-md-3 p-2 text-center">
+              <div className="card text-bg-primary text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Total Tasks</h5>
+                  <h5 classname="mb-0">{totalTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-warning text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Pending</h5>
+                  <h5 classname="mb-0">{pendingTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-success text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Completed</h5>
+                  <h5 classname="mb-0">{completedTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 p-2">
+              <div className="card text-bg-danger text-white shadow border-0">
+                <div className="card-body">
+                  <h5 classname="mb-1">Overdue</h5>
+                  <h5 classname="mb-0">{overdueTasks}</h5>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {dueTodayCount > 0 ? (
+            <div className="alert alert-warning py-2 mb-3">
+              ⚠ {dueTodayCount} task(s) are due today
+            </div>
+          ) : (
+            <div className="alert alert-success py-2 mb-3">
+              🎉 No tasks due today
+            </div>
+          )}
+
+          <div className="row">
+            <div className="col-md-6">
+              <TaskChart data={chartData} />
+            </div>
+
+            <div className="col-md-6">
+              <PriorityChart data={priorityData} />
+            </div>
+          </div>
+
+          <div className="card p-2 shadow-sm mb-3">
+            <h5 className="mb-1">
+              Task Completion Rate
+            </h5>
+
+            <div className="progress " style={{ height: "15px" }}>
+              <div
+                className="progress-bar bg-success"
+                role="progressbar"
+                style={{
+                  width: `${completionPercentage}%`,
+                }}
+              >
+                {completionPercentage}%
+              </div>
+            </div>
+
+            <p className="mt-1 mb-0">
+              {completedTasks} of {totalTasks} tasks completed
+            </p>
+          </div>
+
+          <hr />
+
+
+
+
+
+
+          <h2>My Tasks</h2>
+
 
           <p>Total Tasks: {tasks.length}</p>
           <p>Filtered Tasks: {filteredTasks.length}</p>
@@ -534,7 +515,7 @@ function Dashboard() {
           </div>
 
           <select
-            className="form-select mb-3"
+            className="form-select mb-3 border-2"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
@@ -592,50 +573,51 @@ function Dashboard() {
 
                   <p>Description: {task.description}</p>
 
-                  <p>
-                    Status:{" "}
-                    <span
-                      className={`badge ${task.status === "Completed"
-                        ? "bg-success"
-                        : task.status === "In Progress"
-                          ? "bg-primary"
-                          : "bg-secondary"
-                        }`}
-                    >
-                      {task.status}
+
+                  <p className="d-flex justify-content-center align-items-center flex-wrap gap-5">
+                    <span>
+                      Status:{" "}
+                      <span
+                        className={`badge ${task.status === "Completed"
+                            ? "bg-success"
+                            : task.status === "In Progress"
+                              ? "bg-primary"
+                              : "bg-secondary"
+                          }`}
+                      >
+                        {task.status}
+                      </span>
                     </span>
-                  </p>
 
-                  <p>
-                    Priority:{" "}
-                    <span
-                      className={`badge ${task.priority === "High"
-                        ? "bg-danger"
-                        : task.priority === "Medium"
-                          ? "bg-warning text-dark"
-                          : "bg-success"
-                        }`}
-                    >
-                      {task.priority}
+                    <span>
+                      Priority:{" "}
+                      <span
+                        className={`badge ${task.priority === "High"
+                            ? "bg-danger"
+                            : task.priority === "Medium"
+                              ? "bg-warning text-dark"
+                              : "bg-success"
+                          }`}
+                      >
+                        {task.priority}
+                      </span>
                     </span>
-                  </p>
 
-                  <p>
-                    Due Date:{" "}
-                    {task.dueDate
-                      ? new Date(task.dueDate).toLocaleDateString()
-                      : "Not Set"}
-                  </p>
+                    <span>
+                      Due Date:{" "}
+                      {task.dueDate
+                        ? new Date(task.dueDate).toLocaleDateString()
+                        : "Not Set"}
+                    </span>
 
-                  {task.status !== "Completed" &&
-                    taskDueDate &&
-                    taskDueDate < today && (
-                      <p>
+                    {task.status !== "Completed" &&
+                      taskDueDate &&
+                      taskDueDate < today && (
                         <span className="badge bg-danger">
                           Overdue
                         </span>
-                      </p>
-                    )}
+                      )}
+                  </p>
 
                   {task.status !== "Completed" &&
                     taskDueDate &&
@@ -683,44 +665,76 @@ function Dashboard() {
               );
             })
           )}
-          <TaskChart data={chartData} />
+          <div className={`card border-2 shadow-sm ${darkMode ? "bg-secondary text-light" : ""
+            }`}
+          >
 
-          <PriorityChart data={priorityData} />
+            <div className="card-body">
 
-          <div className="card p-3 shadow-sm ">
-            <h4 className="mb-3">
-              Task Completion Rate
-            </h4>
+              <h2 className="text-center mb-4">
+                Add Task
+              </h2>
 
-            <div className="progress" style={{ height: "30px" }}>
-              <div
-                className="progress-bar bg-success"
-                role="progressbar"
-                style={{
-                  width: `${completionPercentage}%`,
-                }}
-              >
-                {completionPercentage}%
-              </div>
+              <form onSubmit={handleAddTask}>
+                <input
+                  type="text"
+                  placeholder="Enter task title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="form-control"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Enter description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="form-control"
+                />
+
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="form-control"
+                />
+
+                <button
+                  type="submit"
+                  className={`btn ${isEditing ? "btn-warning" : "btn-primary"
+                    }`}
+                >
+                  {isEditing ? "Update Task" : "Add Task"}
+                </button>
+              </form>
             </div>
-
-            <p className="mt-3 mb-0">
-              {completedTasks} of {totalTasks} tasks completed
-            </p>
           </div>
+
+
+
+
         </div >
       </div>
       <footer
-        className={`text-center mt-5 py-4 ${
-          darkMode
-            ? "bg-dark text-light"
-            : "bg-light text-muted"
-        }`}
+        className={`text-center py-4 ${darkMode
+          ? "bg-dark text-light"
+          : "bg-light text-muted"
+          }`}
       >
         Smart Task Manager © 2026
-      
+
         <br />
-      
+
         Built with MERN Stack
       </footer>
       <ToastContainer

@@ -15,21 +15,21 @@ function PriorityChart({ data }) {
   ];
 
   return (
-    <div className="card p-3 shadow-sm mb-4">
+    <div className="card p-2 shadow-sm mb-2 ">
       <h4 className="mb-3">
         Priority Distribution
       </h4>
 
       <ResponsiveContainer
         width="100%"
-        height={300}
+        height={200}
       >
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
-            outerRadius={100}
+            outerRadius={50}
             label
           >
             {data.map((entry, index) => (
