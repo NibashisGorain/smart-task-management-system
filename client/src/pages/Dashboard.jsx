@@ -55,13 +55,11 @@ function Dashboard() {
 
   useEffect(() => {
     if (dueTodayCount > 0) {
-      toast.dismiss("dueToday");
-
       toast.warning(
-        `⚠ You have ${dueTodayCount} task${dueTodayCount > 1 ? "s" : ""
-        } due today`,
+        `⚠ You have ${dueTodayCount} task${dueTodayCount > 1 ? "s" : ""} due today`,
         {
           toastId: "dueToday",
+          autoClose: 3000,
         }
       );
     }
@@ -89,6 +87,11 @@ function Dashboard() {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
+
+    if (!title.trim()) {
+      toast.warning("Please enter a task title");
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -587,7 +590,11 @@ function Dashboard() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="form-control"
+                  maxLength={100}
                 />
+                <small className="text-muted">
+                  {title.length}/100 characters
+                </small>
 
                 <input
                   type="text"
@@ -595,7 +602,11 @@ function Dashboard() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="form-control"
+                  maxLength={500}
                 />
+                <small className="text-muted">
+                  {description.length}/500 characters
+                </small>
 
                 <select
                   value={priority}
@@ -609,9 +620,10 @@ function Dashboard() {
 
                 <input
                   type="date"
+                  className="form-control mt-2"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="form-control"
+                  min={new Date().toLocaleDateString("en-CA")}
                 />
 
                 <button

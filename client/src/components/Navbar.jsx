@@ -6,6 +6,7 @@ function Navbar({ darkMode, setDarkMode }) {
     const name = localStorage.getItem("name");
 
     const handleLogout = () => {
+        toast.dismiss();
         localStorage.removeItem("token");
         localStorage.removeItem("name");
         navigate("/");
