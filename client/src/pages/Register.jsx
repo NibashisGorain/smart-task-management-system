@@ -8,6 +8,7 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -90,16 +91,24 @@ function Register() {
             />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Password</label>
+          <div className="position-relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-control"
-              placeholder="Create a password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="btn position-absolute top-50 end-0 translate-middle-y border-0"
+              style={{ background: "transparent" }}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
           </div>
 
           <button

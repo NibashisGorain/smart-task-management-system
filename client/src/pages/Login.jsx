@@ -3,10 +3,12 @@ import API from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -63,16 +65,24 @@ function Login() {
             />
           </div>
 
-          <div className="mb-3">
-            <label className="form-label">Password</label>
+          <div className="position-relative">
             <input
-              type="password"
-              placeholder="Enter your password"
+              type={showPassword ? "text" : "password"}
+              className="form-control"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="form-control"
               required
             />
+          
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="btn position-absolute top-50 end-0 translate-middle-y border-0"
+              style={{ background: "transparent" }}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
           </div>
 
           <button
