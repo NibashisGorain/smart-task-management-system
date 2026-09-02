@@ -56,16 +56,30 @@ A full-stack task management web application that allows users to register, log 
 ## Project Structure
 
 \`\`\`
-server/
-├── config/
-├── controllers/
-├── middleware/
-├── models/
-├── routes/
-├── utils/
-├── .gitignore
-├── package.json
-└── server.js
+Smart-Task-Management-System/
+│
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.jsx
+│   │
+│   ├── package.json
+│   └── vite.config.js
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   ├── .gitignore
+│   ├── package.json
+│   └── server.js
+│
+└── README.md
 \`\`\`
 
 ---
