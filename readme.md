@@ -55,7 +55,7 @@ A full-stack task management web application that allows users to register, log 
 
 ## Project Structure
 
-\`\`\`
+
 Smart-Task-Management-System/
 │
 ├── client/
@@ -80,7 +80,7 @@ Smart-Task-Management-System/
 │   └── server.js
 │
 └── README.md
-\`\`\`
+
 
 ---
 
