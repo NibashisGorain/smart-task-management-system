@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Navbar from "../components/Navbar";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TaskChart from "../components/TaskChart";
 import PriorityChart from "../components/PriorityChart";
@@ -19,6 +19,7 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [editTaskId, setEditTaskId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showTaskForm, setShowTaskForm] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
@@ -30,11 +31,12 @@ function Dashboard() {
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
-
-
-
   const handleLogout = () => {
+    toast.dismiss();
+
     localStorage.removeItem("token");
+    localStorage.removeItem("name");
+
     navigate("/");
   };
 
@@ -135,6 +137,7 @@ function Dashboard() {
       setDescription("");
       setPriority("Medium");
       setDueDate("");
+      setShowTaskForm(false);
 
       toast.success(
         isEditing
@@ -163,7 +166,6 @@ function Dashboard() {
 
       setShowDeleteModal(false);
       setTaskToDelete(null);
-
     } catch (error) {
       console.log(error.response?.data || error.message);
       alert("Delete Failed");
@@ -216,11 +218,22 @@ function Dashboard() {
 
     setEditTaskId(task._id);
     setIsEditing(true);
+    setShowTaskForm(true);
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+  };
+
+  const handleCancelTask = () => {
+    setShowTaskForm(false);
+    setIsEditing(false);
+    setEditTaskId(null);
+    setTitle("");
+    setDescription("");
+    setPriority("Medium");
+    setDueDate("");
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -229,6 +242,7 @@ function Dashboard() {
     ) {
       return false;
     }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -243,11 +257,11 @@ function Dashboard() {
     if (filter === "pending") {
       return task.status.toLowerCase() !== "completed";
     }
-    
+
     if (filter === "completed") {
       return task.status.toLowerCase() === "completed";
     }
-    
+
     if (filter === "overdue") {
       return (
         task.status.toLowerCase() !== "completed" &&
@@ -260,7 +274,6 @@ function Dashboard() {
   });
 
   const sortedTasks = [...filteredTasks].sort((a, b) => {
-
     if (sortBy === "newest") {
       return new Date(b.createdAt) - new Date(a.createdAt);
     }
@@ -362,8 +375,8 @@ function Dashboard() {
     totalTasks === 0
       ? 0
       : Math.round(
-        (completedTasks / totalTasks) * 100
-      );
+          (completedTasks / totalTasks) * 100
+        );
 
   return (
     <>
@@ -378,19 +391,26 @@ function Dashboard() {
           darkMode={darkMode}
           setDarkMode={setDarkMode}
         />
-        <div className={"container mt-2 text-center"
-        }
 
-        >
+        <div className="container mt-2 text-center">
+
+          {/* Search / Filter / Sort */}
           <div className="d-flex gap-2 mb-3">
             <input
               type="text"
               placeholder="Search Tasks..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearch(value);
+
+                if (value.trim() !== "") {
+                  setShowTaskForm(false);
+                }
+              }}
               className="form-control border-2"
             />
-          
+
             <select
               className="form-select border-2"
               value={filter}
@@ -402,7 +422,7 @@ function Dashboard() {
               <option value="completed">Completed</option>
               <option value="overdue">Overdue</option>
             </select>
-          
+
             <select
               className="form-select border-2"
               value={sortBy}
@@ -416,6 +436,7 @@ function Dashboard() {
             </select>
           </div>
 
+          {/* Due Today */}
           {dueTodayCount > 0 ? (
             <div className="alert alert-warning py-2 mb-3">
               ⚠ {dueTodayCount} task(s) are due today
@@ -426,12 +447,114 @@ function Dashboard() {
             </div>
           )}
 
+          {/* Add New Task Button */}
+          {!showTaskForm && (
+            <button
+              type="button"
+              className="btn btn-primary w-100 py-3 mb-3 fw-bold"
+              onClick={() => {
+                setShowTaskForm(true);
+                setIsEditing(false);
+              }}
+            >
+              ➕ Add New Task
+            </button>
+          )}
+
+          {/* Add / Edit Task Form */}
+          {showTaskForm && (
+            <div
+              className={`card border-2 shadow-sm mb-4 ${
+                darkMode ? "bg-secondary text-light" : ""
+              }`}
+            >
+              <div className="card-body">
+
+                <h2 className="text-center mb-4">
+                  {isEditing ? "Edit Task" : "Add New Task"}
+                </h2>
+
+                <form onSubmit={handleAddTask}>
+
+                  <input
+                    type="text"
+                    placeholder="Enter task title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="form-control"
+                    maxLength={100}
+                  />
+
+                  <small className="text-muted">
+                    {title.length}/100 characters
+                  </small>
+
+                  <input
+                    type="text"
+                    placeholder="Enter description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="form-control"
+                    maxLength={500}
+                  />
+
+                  <small className="text-muted">
+                    {description.length}/500 characters
+                  </small>
+
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="form-select"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+
+                  <input
+                    type="date"
+                    className="form-control mt-2"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    min={new Date().toLocaleDateString("en-CA")}
+                  />
+
+                  <div className="d-flex justify-content-center gap-2 mt-3">
+
+                    <button
+                      type="submit"
+                      className={`btn ${
+                        isEditing
+                          ? "btn-warning"
+                          : "btn-primary"
+                      }`}
+                    >
+                      {isEditing ? "Update Task" : "Add Task"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={handleCancelTask}
+                    >
+                      Cancel
+                    </button>
+
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
           <hr />
 
           <h2>My Tasks</h2>
 
-          <p className="d-flex justify-content-center align-items-center flex-wrap gap-5"><span>Total Tasks: {tasks.length}</span>
-            <span>Filtered Tasks: {filteredTasks.length}</span></p>
+          <p className="d-flex justify-content-center align-items-center flex-wrap gap-5">
+            <span>Total Tasks: {tasks.length}</span>
+            <span>Filtered Tasks: {filteredTasks.length}</span>
+          </p>
 
           {filteredTasks.length === 0 ? (
             <p>No Tasks Found</p>
@@ -451,10 +574,11 @@ function Dashboard() {
               return (
                 <div
                   key={task._id}
-                  className={`card p-3 mb-3 shadow-sm ${task.status === "Completed"
-                    ? "bg-info-subtle border-5 border-success"
-                    : "bg-secondary-subtle border-danger border-5"
-                    }`}
+                  className={`card p-3 mb-3 shadow-sm ${
+                    task.status === "Completed"
+                      ? "bg-info-subtle border-5 border-success"
+                      : "bg-secondary-subtle border-danger border-5"
+                  }`}
                 >
                   <h3 className="fw-bold">
 
@@ -471,7 +595,6 @@ function Dashboard() {
                         task.status === "Completed"
                           ? "text-decoration-line-through text-muted"
                           : ""
-
                       }
                     >
                       {task.title}
@@ -479,19 +602,22 @@ function Dashboard() {
 
                   </h3>
 
-                  <p>Description: {task.description}</p>
-
+                  <p>
+                    Description: {task.description}
+                  </p>
 
                   <p className="d-flex justify-content-center align-items-center flex-wrap gap-5">
+
                     <span>
                       Status:{" "}
                       <span
-                        className={`badge ${task.status === "Completed"
-                          ? "bg-success"
-                          : task.status === "In Progress"
-                            ? "bg-primary"
-                            : "bg-secondary"
-                          }`}
+                        className={`badge ${
+                          task.status === "Completed"
+                            ? "bg-success"
+                            : task.status === "In Progress"
+                              ? "bg-primary"
+                              : "bg-secondary"
+                        }`}
                       >
                         {task.status}
                       </span>
@@ -500,12 +626,13 @@ function Dashboard() {
                     <span>
                       Priority:{" "}
                       <span
-                        className={`badge ${task.priority === "High"
-                          ? "bg-danger"
-                          : task.priority === "Medium"
-                            ? "bg-warning text-dark"
-                            : "bg-success"
-                          }`}
+                        className={`badge ${
+                          task.priority === "High"
+                            ? "bg-danger"
+                            : task.priority === "Medium"
+                              ? "bg-warning text-dark"
+                              : "bg-success"
+                        }`}
                       >
                         {task.priority}
                       </span>
@@ -514,7 +641,9 @@ function Dashboard() {
                     <span>
                       Due Date:{" "}
                       {task.dueDate
-                        ? new Date(task.dueDate).toLocaleDateString()
+                        ? new Date(
+                            task.dueDate
+                          ).toLocaleDateString()
                         : "Not Set"}
                     </span>
 
@@ -540,10 +669,11 @@ function Dashboard() {
                   <div className="d-flex justify-content-center gap-2 mt-3">
 
                     <button
-                      className={`btn ${task.status === "Completed"
-                        ? "btn-secondary"
-                        : "btn-success"
-                        }`}
+                      className={`btn ${
+                        task.status === "Completed"
+                          ? "btn-secondary"
+                          : "btn-success"
+                      }`}
                       onClick={() => handleCompleteTask(task)}
                     >
                       {task.status === "Completed"
@@ -573,77 +703,15 @@ function Dashboard() {
               );
             })
           )}
-          <div className={`card border-2 shadow-sm ${darkMode ? "bg-secondary text-light" : ""
-            }`}
-          >
 
-            <div className="card-body">
-
-              <h2 className="text-center mb-4">
-                Add New Task
-              </h2>
-
-              <form onSubmit={handleAddTask}>
-                <input
-                  type="text"
-                  placeholder="Enter task title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="form-control"
-                  maxLength={100}
-                />
-                <small className="text-muted">
-                  {title.length}/100 characters
-                </small>
-
-                <input
-                  type="text"
-                  placeholder="Enter description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="form-control"
-                  maxLength={500}
-                />
-                <small className="text-muted">
-                  {description.length}/500 characters
-                </small>
-
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="form-select"
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
-
-                <input
-                  type="date"
-                  className="form-control mt-2"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  min={new Date().toLocaleDateString("en-CA")}
-                />
-
-                <button
-                  type="submit"
-                  className={`btn ${isEditing ? "btn-warning" : "btn-primary"
-                    }`}
-                >
-                  {isEditing ? "Update Task" : "Add Task"}
-                </button>
-              </form>
-            </div>
-          </div>
-
+          {/* Statistics */}
           <div className="row mb-2">
 
             <div className="col-md-3 p-2 text-center">
               <div className="card text-bg-primary text-white shadow border-0">
                 <div className="card-body">
-                  <h5 classname="mb-1">Total Tasks</h5>
-                  <h5 classname="mb-0">{totalTasks}</h5>
+                  <h5 className="mb-1">Total Tasks</h5>
+                  <h5 className="mb-0">{totalTasks}</h5>
                 </div>
               </div>
             </div>
@@ -651,8 +719,8 @@ function Dashboard() {
             <div className="col-md-3 p-2">
               <div className="card text-bg-warning text-white shadow border-0">
                 <div className="card-body">
-                  <h5 classname="mb-1">Pending</h5>
-                  <h5 classname="mb-0">{pendingTasks}</h5>
+                  <h5 className="mb-1">Pending</h5>
+                  <h5 className="mb-0">{pendingTasks}</h5>
                 </div>
               </div>
             </div>
@@ -660,8 +728,8 @@ function Dashboard() {
             <div className="col-md-3 p-2">
               <div className="card text-bg-success text-white shadow border-0">
                 <div className="card-body">
-                  <h5 classname="mb-1">Completed</h5>
-                  <h5 classname="mb-0">{completedTasks}</h5>
+                  <h5 className="mb-1">Completed</h5>
+                  <h5 className="mb-0">{completedTasks}</h5>
                 </div>
               </div>
             </div>
@@ -669,14 +737,15 @@ function Dashboard() {
             <div className="col-md-3 p-2">
               <div className="card text-bg-danger text-white shadow border-0">
                 <div className="card-body">
-                  <h5 classname="mb-1">Overdue</h5>
-                  <h5 classname="mb-0">{overdueTasks}</h5>
+                  <h5 className="mb-1">Overdue</h5>
+                  <h5 className="mb-0">{overdueTasks}</h5>
                 </div>
               </div>
             </div>
 
           </div>
 
+          {/* Charts */}
           <div className="row">
             <div className="col-md-6">
               <TaskChart data={chartData} />
@@ -687,12 +756,16 @@ function Dashboard() {
             </div>
           </div>
 
-          <div className="card p-2 shadow-sm ">
+          {/* Completion Rate */}
+          <div className="card p-2 shadow-sm">
             <h5 className="mb-1">
               Task Completion Rate
             </h5>
 
-            <div className="progress " style={{ height: "15px" }}>
+            <div
+              className="progress"
+              style={{ height: "15px" }}
+            >
               <div
                 className="progress-bar bg-success"
                 role="progressbar"
@@ -709,16 +782,15 @@ function Dashboard() {
             </p>
           </div>
 
-
-
-
-        </div >
+        </div>
       </div>
+
       <footer
-        className={`text-center py-4 ${darkMode
-          ? "bg-dark text-light"
-          : "bg-light text-muted"
-          }`}
+        className={`text-center py-4 ${
+          darkMode
+            ? "bg-dark text-light"
+            : "bg-light text-muted"
+        }`}
       >
         Smart Task Manager © 2026
 
@@ -726,70 +798,71 @@ function Dashboard() {
 
         Built with MERN Stack
       </footer>
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
-      {
-        showDeleteModal && (
-          <>
-            <div
-              className="modal fade show"
-              style={{ display: "block" }}
-              tabIndex="-1"
-            >
-              <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
 
-                  <div className="modal-header">
-                    <h5 className="modal-title">
-                      Delete Task
-                    </h5>
-                    <button
-                      className="btn-close"
-                      onClick={() => setShowDeleteModal(false)}
-                    ></button>
-                  </div>
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <>
+          <div
+            className="modal fade show"
+            style={{ display: "block" }}
+            tabIndex="-1"
+          >
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
 
-                  <div className="modal-body">
-                    <p>
-                      Are you sure you want to delete this task?
-                    </p>
-                    <p className="text-danger mb-0">
-                      This action cannot be undone.
-                    </p>
-                  </div>
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    Delete Task
+                  </h5>
 
-                  <div className="modal-footer">
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => setShowDeleteModal(false)}
-                    >
-                      Cancel
-                    </button>
+                  <button
+                    className="btn-close"
+                    onClick={() =>
+                      setShowDeleteModal(false)
+                    }
+                  ></button>
+                </div>
 
-                    <button
-                      className="btn btn-danger"
-                      onClick={confirmDeleteTask}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                <div className="modal-body">
+                  <p>
+                    Are you sure you want to delete this task?
+                  </p>
+
+                  <p className="text-danger mb-0">
+                    This action cannot be undone.
+                  </p>
+                </div>
+
+                <div className="modal-footer">
+
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() =>
+                      setShowDeleteModal(false)
+                    }
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="btn btn-danger"
+                    onClick={confirmDeleteTask}
+                  >
+                    Delete
+                  </button>
 
                 </div>
+
               </div>
             </div>
 
             <div className="modal-backdrop fade show"></div>
-          </>
-        )
-      }
+          </div>
+        </>
+      )}
     </>
   );
 }
 
 export default Dashboard;
+
